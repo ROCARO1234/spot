@@ -1,0 +1,14 @@
+{
+  "source_archive": "desktop_robot.zip",
+  "source_archive_sha256": "fc9eb833cf32a6284f181bb9af6a3c4bc9850eb98b2f4e85d1591572a7759c9c",
+  "basis": "Most recent candidate by ZIP modification dates; physical verification not inferred",
+  "original_file_sha256": {
+    "move_test_10.11.2025/runner_gait_ikfin.py": "0b7e884d164327518174a1281f4bf0277edbad7407b9ea906edf6b8182f6262e",
+    "move_test_10.11.2025/ik_fin.py": "a31936d42a99b76e3e28b2b2fbebaba499e7aa4276cc3a14ee6067b946fe9dd5",
+    "move_test_10.11.2025/test_movment/i2c_leg.py": "5cd59298696c686c6a14f361adb1ff10ec0164572da25fe6082b6f3b7ad5f9e7",
+    "poses.json": "62356bb1eac5a3b652681a7bec551ffd866983477c309464997f76a25877e02d"
+  },
+  "original_archive_modified": false,
+  "stand_pose_preserved": true,
+  "real_hardware_tested": false
+}

@@ -1,0 +1,92 @@
+--- a/soft-hard_converter/src/sth_conv_py/sth_conv_py/servo_driver.py
++++ b/soft-hard_converter/src/sth_conv_py/sth_conv_py/servo_driver.py
+@@ -1,5 +1,6 @@
+ import rclpy
+ import json
++import math
+ import time
+ from rclpy.node import Node
+ from adafruit_servokit import ServoKit
+@@ -21,7 +22,20 @@
+         
+ 
+     def servo_callback(self, msg):
+-        data = json.loads(msg.data)
++        # Validate the complete message before changing any channel.
++        try:
++            data = json.loads(msg.data)
++            if not isinstance(data, dict):
++                raise ValueError("expected an object with S1 through S16")
++            for channel in range(1, 17):
++                key = f"S{channel}"
++                value = float(data[key])
++                if isinstance(data[key], bool) or not math.isfinite(value) or not 0 <= value <= 180:
++                    raise ValueError(f"{key} must be a finite angle from 0 to 180")
++                data[key] = int(value)
++        except (KeyError, TypeError, ValueError, OverflowError) as exc:
++            self.get_logger().warning(f"Rejected servo frame: {exc}")
++            return
+         kit.servo[0].angle = int(data["S1"])
+         self.get_logger().info("S1" + " " + str(data["S1"]))
+ 
+--- /dev/null
++++ b/soft-hard_converter/src/sth_conv_py/test/test_servo_frames.py
+@@ -0,0 +1,58 @@
++"""Test the actual callback without importing ROS or real hardware drivers."""
++import ast
++import json
++import math
++from pathlib import Path
++from types import SimpleNamespace
++import unittest
++
++SOURCE = Path(__file__).resolve().parents[1] / 'sth_conv_py' / 'servo_driver.py'
++
++class ServoFrameTests(unittest.TestCase):
++    def setUp(self):
++        self.writes=[]
++        self.warnings=[]
++        outer=self
++        class Servo:
++            def __init__(self,i):self.i=i
++            @property
++            def angle(self):return None
++            @angle.setter
++            def angle(self,value):outer.writes.append((self.i,value))
++        ns={'Node':object,'json':json,'math':math,'kit':SimpleNamespace(servo=[Servo(i) for i in range(16)])}
++        tree=ast.parse(SOURCE.read_text(encoding='utf-8-sig'))
++        cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ServoDrver')
++        exec(compile(ast.Module(body=[cls],type_ignores=[]),str(SOURCE),'exec'),ns)
++        self.driver=object.__new__(ns['ServoDrver'])
++        self.driver.get_logger=lambda:SimpleNamespace(info=lambda _:None,warning=self.warnings.append)
++
++    def send(self,payload):
++        self.driver.servo_callback(SimpleNamespace(data=json.dumps(payload)))
++
++    def test_valid_complete_frame_preserves_channels_and_integer_angles(self):
++        self.send({f'S{i}':90.9 for i in range(1,17)})
++        self.assertEqual(self.writes,[(i,90) for i in range(16)])
++        self.assertFalse(self.warnings)
++
++    def test_missing_last_channel_does_not_write_any_channel(self):
++        self.send({f'S{i}':90 for i in range(1,16)})
++        self.assertEqual(self.writes,[])
++        self.assertEqual(len(self.warnings),1)
++
++    def test_bad_last_angle_does_not_partially_move_robot(self):
++        for value in (-1,181,180.9,float('nan'),float('inf'),None,True,'bad',{}):
++            with self.subTest(value=value):
++                self.writes.clear();self.warnings.clear()
++                payload={f'S{i}':90 for i in range(1,17)};payload['S16']=value
++                self.send(payload)
++                self.assertEqual(self.writes,[])
++                self.assertEqual(len(self.warnings),1)
++
++    def test_malformed_json_and_wrong_root_are_rejected(self):
++        for raw in ('{', '[]', 'null'):
++            with self.subTest(raw=raw):
++                self.driver.servo_callback(SimpleNamespace(data=raw))
++                self.assertEqual(self.writes,[])
++        self.assertEqual(len(self.warnings),3)
++
++if __name__=='__main__':unittest.main()

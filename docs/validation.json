@@ -1,0 +1,469 @@
+{
+  "generated_at_utc": "2026-09-27T11:53:44.268618+00:00",
+  "hardware_exercised": false,
+  "python": "3.12.10",
+  "numpy": "2.5.2",
+  "unit_tests": {
+    "run": 83,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "profiles": [
+    {
+      "requested_velocity": [
+        -0.012,
+        -0.012,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 50.7829,
+      "max_servo_deg": 142.0898,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04674,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        -0.012,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 48.6023,
+      "max_servo_deg": 142.2124,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04421,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        -0.012,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 49.354,
+      "max_servo_deg": 138.0226,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.05012,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        0.0,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 51.0704,
+      "max_servo_deg": 143.5286,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.0458,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        0.0,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 48.1181,
+      "max_servo_deg": 145.7397,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04681,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        0.0,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 48.892,
+      "max_servo_deg": 138.3,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.0489,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        0.012,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 51.8135,
+      "max_servo_deg": 142.8419,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04459,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        0.012,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 49.9803,
+      "max_servo_deg": 144.8139,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04227,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        -0.012,
+        0.012,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 48.7837,
+      "max_servo_deg": 138.8877,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04809,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        -0.012,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 51.8112,
+      "max_servo_deg": 140.0249,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04719,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        -0.012,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 51.1452,
+      "max_servo_deg": 139.5585,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04503,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        -0.012,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 50.6482,
+      "max_servo_deg": 138.5831,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.05013,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        0.0,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 50.7318,
+      "max_servo_deg": 141.4793,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04607,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "frames": 1041,
+      "simulated_seconds": 20.8,
+      "final_state": "STAND",
+      "max_swing_legs": 0,
+      "min_servo_deg": 77.0,
+      "max_servo_deg": 110.0,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.09,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        0.0,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 50.3546,
+      "max_servo_deg": 138.97,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.0492,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        0.012,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 50.4008,
+      "max_servo_deg": 141.0109,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04496,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        0.012,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 49.2153,
+      "max_servo_deg": 139.9883,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04316,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.0,
+        0.012,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 50.4666,
+      "max_servo_deg": 138.8121,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.0483,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        -0.012,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 48.8577,
+      "max_servo_deg": 141.1329,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.049,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        -0.012,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 46.3314,
+      "max_servo_deg": 143.5575,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04975,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        -0.012,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 50.9839,
+      "max_servo_deg": 141.0428,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04841,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        0.0,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 47.4755,
+      "max_servo_deg": 140.8713,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04903,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        0.0,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 41.7633,
+      "max_servo_deg": 144.3234,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.05167,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        0.0,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 49.7651,
+      "max_servo_deg": 140.9263,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04907,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        0.012,
+        -0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 47.8494,
+      "max_servo_deg": 139.5982,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04717,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        0.012,
+        0.0
+      ],
+      "frames": 1461,
+      "simulated_seconds": 29.2,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 42.9634,
+      "max_servo_deg": 141.3987,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04918,
+      "passed": true
+    },
+    {
+      "requested_velocity": [
+        0.012,
+        0.012,
+        0.12
+      ],
+      "frames": 1721,
+      "simulated_seconds": 34.4,
+      "final_state": "STAND",
+      "max_swing_legs": 1,
+      "min_servo_deg": 49.3354,
+      "max_servo_deg": 139.7618,
+      "max_tracking_error_deg": 0.0,
+      "min_model_support_margin_m": 0.04959,
+      "passed": true
+    }
+  ],
+  "source_sha256": {
+    "config/poses.json": "62356bb1eac5a3b652681a7bec551ffd866983477c309464997f76a25877e02d",
+    "config/robot.json": "faf55b1bd1c923b1cf3a73d8dc88a7af876027b5050c995c33c87eb3ce260a50",
+    "controller.py": "5be3e554baf51cdb8c0954fb77294ab62a7622e8aa9dd15c1a714b2c53b1d745",
+    "gait_core.py": "56bde6fd8f7675112cdbeace0579e83c94b4a9fc125cd77d0ee153ca27b1614e",
+    "ik_fin.py": "4377e36fde3340238e345f07980c4bb3aa45cb88c1b15983269d4ef547fec5c2",
+    "keyboard_control.py": "3dffd44e7401a8b038498f070cc4293e6282f189fb96c0561592015e893d7ce2",
+    "robot_config.py": "63cde060f4461c2eb740de769edd0a981b42e476d5573bf3f46985bbeed0392d",
+    "robot_io.py": "700f0c0270e6a93018dfae109938cd2e0469506affbd9ea2615aefd411152ea0",
+    "runner_gait_ikfin.py": "43dcf534a8cb1ad73230775436e37961ccfee2ab7531e56630afe12625f1019a",
+    "simulation.py": "384e0d42cecb5809ef47be4744f9ea1203911585beee9320ffe3eaee46f17aa4",
+    "telemetry.py": "3fac7ad0f97e9b6c8977e49b3997f9ea4059c1ae5dbececfd9e35ddaddbdd304",
+    "tests/test_cli.py": "9173f57ccdae68697d35dedd4b963b5f5d74ee4df101c051a91a418f9f0263fd",
+    "tests/test_gait.py": "d7a3b59e75a1169b635ea5244a34ef8f18c220d0fe151a74fe29a7e5ae78fad0",
+    "tests/test_hardware_imports.py": "1178574557adde3383edbcda6b4dfa82763e4ff73b0970e576d532f25b202dd4",
+    "tests/test_kinematics.py": "62aee3bcef94c949fc527a0d03c91ba9ebf224eb29e417e22469e3db02f08fc5",
+    "tests/test_safety_io.py": "1720dd6f6d48e93ea8c1361f5918ce2318fcb4084c10b5bf493ab6852fe8e01e",
+    "tests/test_telemetry.py": "11fd94f2c3149d17e0dde9f88e0d8081b60534bca70e264c4dd11fc112840b34",
+    "validate.py": "02023d813bc8b0a00d1b088e59283b42a3defab5238291b2a7a33498a1d3859b",
+    "viewer_live.py": "e1b7a568bbc6787451a76858267d8f70064adca7515fe8ffde446fdb8110e6ba"
+  },
+  "passed": true,
+  "wall_time_seconds": 64.319
+}

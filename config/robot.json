@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "geometry": {
+    "body_length_m": 0.25205,
+    "body_width_m": 0.105577,
+    "hip_link_m": 0.045,
+    "upper_link_m": 0.1115,
+    "lower_link_m": 0.155,
+    "verified_on_robot": false
+  },
+  "nominal_feet_body_m": {
+    "FL": [
+      0.14,
+      0.09,
+      -0.18
+    ],
+    "FR": [
+      0.14,
+      -0.09,
+      -0.18
+    ],
+    "RL": [
+      -0.165,
+      0.09,
+      -0.18
+    ],
+    "RR": [
+      -0.165,
+      -0.09,
+      -0.18
+    ]
+  },
+  "gait": {
+    "order": [
+      "FL",
+      "RR",
+      "FR",
+      "RL"
+    ],
+    "transfer_time_s": 1.6,
+    "swing_time_s": 1.0,
+    "lift_m": 0.012,
+    "max_stride_m": 0.03,
+    "max_translation_mps": 0.012,
+    "max_yaw_rps": 0.12,
+    "translation_accel_mps2": 0.025,
+    "yaw_accel_rps2": 0.15,
+    "support_margin_m": 0.008,
+    "com_offset_xy_m": [
+      0.0,
+      0.0
+    ],
+    "max_body_shift_m": 0.1,
+    "settle_tolerance_m": 0.0001
+  },
+  "control": {
+    "rate_hz": 50.0,
+    "max_loop_gap_s": 0.2,
+    "keyboard_timeout_s": 0.65,
+    "keyboard_speed_mps": 0.003,
+    "keyboard_yaw_rps": 0.015,
+    "pose_transition_s": 2.5,
+    "max_tracking_error_deg": 8.0
+  },
+  "hardware": {
+    "calibration_verified_on_robot": false,
+    "pca9685_address": 64,
+    "pwm_frequency_hz": 50,
+    "relay": {
+      "enabled": true,
+      "bus": 1,
+      "address": 8,
+      "register": 1,
+      "on_data": [
+        2
+      ],
+      "off_data": [
+        1
+      ]
+    }
+  },
+  "servos": {
+    "FL_sh": {
+      "channel": 15,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "FL_up": {
+      "channel": 14,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "FL_lo": {
+      "channel": 13,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "FR_sh": {
+      "channel": 3,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "FR_up": {
+      "channel": 2,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "FR_lo": {
+      "channel": 1,
+      "direction": -1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "RL_sh": {
+      "channel": 11,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "RL_up": {
+      "channel": 10,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "RL_lo": {
+      "channel": 9,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "RR_sh": {
+      "channel": 7,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "RR_up": {
+      "channel": 6,
+      "direction": 1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    },
+    "RR_lo": {
+      "channel": 5,
+      "direction": -1,
+      "offset_deg": 0.0,
+      "min_deg": 15.0,
+      "max_deg": 165.0,
+      "max_rate_deg_s": 60.0,
+      "min_pulse_us": 750,
+      "max_pulse_us": 2250,
+      "actuation_range_deg": 180.0
+    }
+  }
+}
