@@ -1,6 +1,10 @@
 # spot
 
-Control SM5 standalone pentru mers crawl, cinematică inversă/directă, control din tastatură și afișare live. Versiune **1.1.1**, bazată pe copia verificată **1.1.0-crawl**.
+Control SM5 standalone pentru mers crawl, cinematică inversă/directă, control din tastatură și afișare live. Versiune **1.2.0-rc4**, pornită din `main` 4f21de8 și comparată cu instalarea 1.1.1 de pe robot.
+
+**Ridicarea autonomă și mersul pe sol nu sunt validate.** Operatorul a raportat suprasarcină la ridicare, cu labele din spate prea în față. [Instrumentul de repoziționare](docs/rear-setback.md) pregătește probe separate, cu întreaga greutate preluată extern. Nu schimbă automat traseul demonstrației sau calibrarea; variantele de mers cu ridicare mai mare sunt încă offline.
+
+Pregătirea demonstrației, probele graduale, validarea poziției joase și revenirea sunt documentate în [ghidul RoboFest](docs/robofest.md). [Interfața opțională de senzori](docs/sensors.md) este dezactivată implicit; nu există feedback măsurat sau stabilizare activă. Rapoartele istorice din `docs/validation.json` descriu versiunea anterioară; pentru această versiune rulează `validate.py`.
 
 Pornirea implicită este offline. Numai `--hardware` poate activa ieșirea reală, după verificarea configurației. Acest proiect nu pretinde o integrare ROS 2 completă sau un robot validat fizic.
 
