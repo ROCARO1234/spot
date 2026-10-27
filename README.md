@@ -1,6 +1,6 @@
 # spot
 
-Control SM5 standalone pentru mers crawl, cinematică inversă/directă, control din tastatură și afișare live. Versiune **1.2.0-rc3**, pornită din `main` 4f21de8 și comparată cu instalarea 1.1.1 de pe robot.
+Control SM5 standalone pentru mers crawl, cinematică inversă/directă, control din tastatură și afișare live. Versiune **1.2.0-rc4**, pornită din `main` 4f21de8 și comparată cu instalarea 1.1.1 de pe robot.
 
 **Ridicarea autonomă și mersul pe sol nu sunt validate.** Operatorul a raportat suprasarcină la ridicare, cu labele din spate prea în față. [Instrumentul de repoziționare](docs/rear-setback.md) pregătește probe separate, cu întreaga greutate preluată extern. Nu schimbă automat traseul demonstrației sau calibrarea; variantele de mers cu ridicare mai mare sunt încă offline.
 

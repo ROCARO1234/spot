@@ -13,8 +13,9 @@ din spate, îl duce înapoi, îl așază, apoi repetă pentru celălalt picior �
 extensiei. Profilul de întoarcere este inversul traseului și se termină în
 CROUCH_READY. Limitele și unghiurile calibrate nu sunt schimbate.
 
-Instrumentul este pentru **probe cu întreaga greutate preluată extern**, nu pentru
-mers pe sol. Poziția/înclinarea corpului și contactele reale nu sunt măsurate;
+Modul hardware implicit este pentru **probe cu întreaga greutate preluată extern**,
+nu pentru mers pe sol. Proba supravegheată de transfer al greutății are un mod
+explicit separat, descris mai jos. Poziția/înclinarea corpului și contactele reale nu sunt măsurate;
 nu se calculează cuplul necesar. Profilul nu este introdus în `--demo`, iar o
 probă susținută reușită nu validează ridicarea sub greutate.
 
@@ -72,3 +73,24 @@ Opțiunea `--hold-s 3` păstrează poziția de capăt timp de 3 s înainte de re
 fără mărirea cursei, ridicării sau vitezei. O probă RL de 10 mm, cu ridicare
 modelată de 6 mm și această pauză durează aproximativ 8 s. Necesită o confirmare
 nouă, sprijin complet și log separat; nu este o probă pe sol.
+
+## Probă explicită de transfer al greutății
+
+`--loaded-rise --confirm-catch-ready` permite numai o probă supravegheată, fără
+mers, după validarea fizică a întregului traseu susținut. Cere separat
+`--supported-route-validation`, legat de calibrarea și de toate cadrele exacte
+ale traseului. Nu acceptă un traseu parțial sau altă cursă/pauză. Înregistrarea
+nu poate fi creată în aceeași invocare cu `--hardware` și nu validează sarcina.
+
+Atestarea probei susținute se poate înregistra offline prin aceiași parametri
+`--rear-setback-mm 20 --stage rise --fraction 1 --hold-s 3`, plus
+`--record-supported-route /cale/noua/route.json --confirm-supported-route
+--operator NUME --evidence DESCRIERE_REALĂ`. Se folosește numai după observația
+explicită a operatorului. Nu se generează automat din codul de ieșire zero.
+
+Pentru proba de sarcină, labele ating un plan aderent. Operatorul preia toată
+greutatea în timpul repoziționării și reduce sprijinul treptat numai la extensie,
+putând prelua imediat corpul. Înaintea întoarcerii/repoziționării inverse preia din
+nou greutatea. Nu se încearcă mers sau stabilizare. Se păstrează un log nou și
+se cere o confirmare nouă de pregătire înainte de alimentare. Eșecul probei
+înseamnă că ridicarea rămâne nevalidată, indiferent de rezultatul software.

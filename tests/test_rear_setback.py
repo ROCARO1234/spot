@@ -1,10 +1,13 @@
 import copy
+import tempfile
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 
 import numpy as np
 
 import rear_setback
+from pose_validation import main as record_low_pose
 from robot_config import JOINTS, SafetyError, load_config
 from robot_io import checked_frame
 
@@ -101,6 +104,49 @@ class RearSetbackTests(unittest.TestCase):
         for value in (-1,6,True,float('inf'),float('nan')):
             with self.assertRaises(SafetyError):
                 rear_setback.compile_probe(self.config,20,hold_s=value)
+
+    def test_supported_route_record_is_exact_and_does_not_validate_load(self):
+        plan=rear_setback.compile_probe(self.config,20,stage='rise',hold_s=3.)
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'route.json'
+            rear_setback.record_supported_route(plan,path,'unit-test','SYNTHETIC TEST ONLY')
+            record=rear_setback.require_supported_route(plan,path)
+            self.assertFalse(record['loaded_rise_validated'])
+            changed=rear_setback.compile_probe(self.config,25,stage='rise',hold_s=3.)
+            with self.assertRaises(SafetyError):
+                rear_setback.require_supported_route(changed,path)
+            changed=rear_setback.compile_probe(self.config,20,stage='rise',hold_s=0.)
+            with self.assertRaises(SafetyError):
+                rear_setback.require_supported_route(changed,path)
+
+    def test_loaded_mode_without_route_record_cannot_arm(self):
+        args=['--config',self.config.source,'--rear-setback-mm','20','--stage','rise',
+              '--fraction','1','--hold-s','3','--hardware','--loaded-rise',
+              '--confirm-catch-ready','--log','unused-loaded-test-log.jsonl']
+        with patch.object(rear_setback.HardwareOutput,'open',side_effect=AssertionError('must not arm')):
+            self.assertEqual(rear_setback.main(args),2)
+
+    def test_loaded_mode_requires_both_records_and_keeps_the_confirmed_route(self):
+        plan=rear_setback.compile_probe(self.config,20,stage='rise',hold_s=3.)
+        with tempfile.TemporaryDirectory() as directory:
+            route=Path(directory)/'route.json'; low=Path(directory)/'low.json'
+            rear_setback.record_supported_route(plan,route,'unit-test','SYNTHETIC TEST ONLY')
+            record_low_pose(['record','--config',self.config.source,'--pose','CROUCH_READY',
+                             '--operator','unit-test','--evidence','SYNTHETIC TEST ONLY',
+                             '--confirmed-supported-roundtrip','--output',str(low)])
+            args=['--config',self.config.source,'--rear-setback-mm','20','--stage','rise',
+                  '--fraction','1','--hold-s','3','--hardware','--loaded-rise','--confirm-catch-ready',
+                  '--log','unused-loaded-test-log.jsonl','--supported-route-validation',str(route),
+                  '--low-validation',str(low)]
+            with patch.object(rear_setback,'run_probe') as run:
+                self.assertEqual(rear_setback.main(args),0)
+                call=run.call_args
+                self.assertTrue(call.kwargs['hardware'])
+                self.assertTrue(call.args[1]['loaded_rise_trial'])
+                self.assertFalse(call.args[1]['requires_full_external_support'])
+                self.assertTrue(call.args[1]['full_support_during_repositioning'])
+                self.assertFalse(call.args[1]['ground_validated'])
+                self.assertEqual(rear_setback.route_fingerprint(call.args[1]),rear_setback.route_fingerprint(plan))
 
 
 if __name__=='__main__':

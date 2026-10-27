@@ -1,13 +1,16 @@
 """Supported commissioning of rear-foot prepositioning; default is offline.
 
 Coordinates are predictions in the configured body frame, not measurements.
-This is NOT a loaded rise controller or a ground-balance validation. During a
-hardware probe an external support must carry the whole robot's weight.
+This is not a production loaded-rise controller or a ground-balance validation.
+Default hardware probes require full external support. An explicit supervised
+loaded-rise trial requires an exact, already-confirmed supported route record.
 """
 from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timezone
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -111,6 +114,36 @@ def summary(plan):
     return {k: v for k, v in plan.items() if k != 'frames'} | {'frames': len(plan['frames'])}
 
 
+def route_fingerprint(plan):
+    return hashlib.sha256(json.dumps({'config':plan['config_fingerprint'], 'frames':plan['frames']},
+                                    sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+
+def record_supported_route(plan, path, operator, evidence):
+    if plan['stage'] != 'rise' or plan['fraction'] != 1. or not operator.strip() or not evidence.strip():
+        raise SafetyError('Recording requires a complete supported rise route and operator evidence')
+    record={'schema_version':1,'supported_route_confirmed':True,
+            'route_fingerprint':route_fingerprint(plan),'operator':operator,'evidence':evidence,
+            'recorded_at':datetime.now(timezone.utc).isoformat(),'loaded_rise_validated':False}
+    with Path(path).expanduser().open('x',encoding='utf-8') as f:
+        json.dump(record,f,indent=2)
+
+
+def require_supported_route(plan, path):
+    if plan['stage'] != 'rise' or plan['fraction'] != 1. or not path:
+        raise SafetyError('Loaded trial BLOCKED: a complete supported route record is required')
+    try:
+        r=json.loads(Path(path).expanduser().read_text(encoding='utf-8'))
+        if (r['schema_version'] != 1 or r['supported_route_confirmed'] is not True
+                or r['route_fingerprint'] != route_fingerprint(plan)
+                or not isinstance(r['operator'],str) or not r['operator'].strip()
+                or not isinstance(r['evidence'],str) or not r['evidence'].strip()):
+            raise ValueError('record mismatch or incomplete evidence')
+    except (OSError,ValueError,KeyError,TypeError) as exc:
+        raise SafetyError('Loaded trial BLOCKED: '+str(exc)) from exc
+    return r
+
+
 def run_probe(config, plan, *, hardware=False, log_path=None):
     if plan['config_fingerprint'] != fingerprint(config, 'CROUCH_READY'):
         raise SafetyError('Probe configuration changed')
@@ -132,6 +165,13 @@ def run_probe(config, plan, *, hardware=False, log_path=None):
     try:
         if log_path:
             log = Path(log_path).expanduser().open('x', encoding='utf-8', buffering=1)
+            log.write(json.dumps({'event':'session','hardware':hardware,
+                       'loaded_rise_trial':plan.get('loaded_rise_trial',False),
+                       'requires_full_external_support':plan['requires_full_external_support'],
+                       'full_support_during_repositioning':True,
+                       'route_fingerprint':route_fingerprint(plan),
+                       'rear_setback_mm':plan['rear_setback_mm'],'fraction':plan['fraction'],
+                       'hold_s':plan['endpoint_observation_hold_s'],'measured_feedback':None})+'\n')
         if hardware:
             for name in ('SIGTERM', 'SIGHUP'):
                 sig = getattr(signal, name, None)
@@ -189,6 +229,13 @@ def main(argv=None):
                    help='external support carries the FULL weight; physical CROUCH_READY alignment')
     p.add_argument('--low-validation')
     p.add_argument('--log')
+    p.add_argument('--loaded-rise',action='store_true',help='explicit supervised load-transfer trial, no gait')
+    p.add_argument('--confirm-catch-ready',action='store_true')
+    p.add_argument('--supported-route-validation')
+    p.add_argument('--record-supported-route',help='record already-observed supported route; offline only')
+    p.add_argument('--operator')
+    p.add_argument('--evidence')
+    p.add_argument('--confirm-supported-route',action='store_true')
     args = p.parse_args(argv)
     try:
         config = load_config(args.config, args.poses)
@@ -199,11 +246,26 @@ def main(argv=None):
         if args.export:
             with Path(args.export).expanduser().open('x', encoding='utf-8') as f:
                 json.dump(plan, f)
+        if args.record_supported_route:
+            if args.hardware or not args.confirm_supported_route or not args.operator or not args.evidence:
+                raise SafetyError('Route attestation is offline-only and requires explicit operator evidence')
+            record_supported_route(plan,args.record_supported_route,args.operator,args.evidence)
+            print('Supported route attestation recorded; loaded rise is NOT validated.')
         if args.hardware:
-            if not args.confirm_supported or not args.log:
+            if not args.log:
+                raise SafetyError('Hardware commissioning requires --log')
+            if args.loaded_rise:
+                if not args.confirm_catch_ready or args.confirm_supported:
+                    raise SafetyError('Loaded trial requires explicit --confirm-catch-ready and separate support mode')
+                require_supported_route(plan,args.supported_route_validation)
+            elif not args.confirm_supported:
                 raise SafetyError('Hardware commissioning requires --confirm-supported and --log')
             require_validation(config, 'CROUCH_READY', args.low_validation)
-            print('SUPPORTED COMMISSIONING ONLY: full external support; no balance guarantee.', flush=True)
+            print('LOADED RISE TRIAL: full support during foot repositioning; catch ready during extension/return.'
+                  if args.loaded_rise else 'SUPPORTED COMMISSIONING ONLY: full external support; no balance guarantee.', flush=True)
+            if args.loaded_rise:
+                plan = dict(plan,requires_full_external_support=False,loaded_rise_trial=True,
+                            full_support_during_repositioning=True,ground_validated=False)
             run_probe(config, plan, hardware=True, log_path=args.log)
             print('Probe completed; relay OFF requested. Physical observation is required.')
         return 0
