@@ -10,7 +10,8 @@ import tarfile
 root = Path(__file__).resolve().parents[1]
 output = Path(sys.argv[1]).resolve()
 paths = subprocess.check_output(['git', 'ls-files', '-z'], cwd=root).decode().split('\0')
-files = {name: (root/name).read_bytes() for name in sorted(filter(None, paths))}
+files = {name: subprocess.check_output(['git', 'show', ':'+name], cwd=root)
+         for name in sorted(filter(None, paths))}
 files['SHA256SUMS'] = ''.join(hashlib.sha256(data).hexdigest() + '  ' + name + '\n'
                             for name, data in files.items()).encode()
 with output.open('xb') as stream:

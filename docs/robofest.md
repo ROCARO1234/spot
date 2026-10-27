@@ -1,5 +1,12 @@
 # Pregătirea demonstrației RoboFest
 
+**Stare actuală: NU executa mers sau ridicare autonomă pe sol.** După prima
+probă pe sol, operatorul a clarificat că robotul nu se ridică singur: labele din
+spate sunt prea în față și picioarele sunt supraîncărcate. Probe suspendate au
+trecut, dar nu validează sarcina reală. Următorii pași sunt descriși în
+[diagnosticul și probele de repoziționare](rear-setback.md). Comenzile de
+demonstrație de mai jos rămân referințe pentru după remediere și revalidare.
+
 Controllerul standalone este baza acestei versiuni. Configurația calibrată se
 citește din `~/Desktop/sm5_gait_fixed/config`; instalarea nu o înlocuiește și nu
 modifică limitele, canalele, direcțiile sau impulsurile servourilor. LIE și
