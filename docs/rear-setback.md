@@ -62,3 +62,13 @@ separată după verificarea picioarelor. `Ctrl+C`, SIGTERM/SIGHUP sau o eroare
 Toată traiectoria este verificată înainte de alimentare. Timpii pot fi măriți
 pentru limitele de viteză ale servourilor; unghiurile nu sunt tăiate la limită.
 Logurile disting timpul planificat de timpul real și nu pretind feedback.
+
+## Observarea direcției
+
+La primele probe RL de 5 mm și 10 mm, operatorul a văzut mișcare, dar nu a putut
+identifica sensul. Direcția nu este încă validată. Nu mări cursa doar pentru
+acest motiv. Cu alimentarea oprită, pune un reper vizual fix lângă laba liberă.
+Opțiunea `--hold-s 3` păstrează poziția de capăt timp de 3 s înainte de revenire,
+fără mărirea cursei, ridicării sau vitezei. O probă RL de 10 mm, cu ridicare
+modelată de 6 mm și această pauză durează aproximativ 8 s. Necesită o confirmare
+nouă, sprijin complet și log separat; nu este o probă pe sol.

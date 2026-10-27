@@ -36,10 +36,11 @@ class Stage:
         return result
 
 
-def compile_probe(config, setback_mm, *, stage='RL', fraction=1.):
+def compile_probe(config, setback_mm, *, stage='RL', fraction=1., hold_s=0.):
     """Whole validated frame list; never changes the supplied calibration."""
     finite_number(setback_mm, 'rear setback mm', 1., 30.)
     finite_number(fraction, 'probe fraction', .01, 1.)
+    finite_number(hold_s, 'endpoint observation hold seconds', 0., 5.)
     if stage not in ('RL', 'RR', 'rise'):
         raise SafetyError('Stage must be RL, RR or rise')
     binding = IKBinding(config)
@@ -90,12 +91,19 @@ def compile_probe(config, setback_mm, *, stage='RL', fraction=1.):
             elapsed += dt
             frames.append({'time_s': elapsed, 'phase': segment.name, 'pose': pose,
                            'model_feet_body_m': {leg: p.tolist() for leg, p in feet.items()}})
+        if not segment.name.startswith('RETURN_'):
+            for _ in range(math.ceil(hold_s/dt)):
+                elapsed += dt
+                frames.append({'time_s': elapsed, 'phase': 'HOLD_'+segment.name,
+                               'pose': frames[-1]['pose'].copy(),
+                               'model_feet_body_m': {leg:p.tolist() for leg,p in segment.end.items()}})
     if max(abs(frames[-1]['pose'][j]-low_pose[j]) for j in JOINTS) > 1e-6:
         raise SafetyError('Probe does not return to the calibrated low pose')
     return {'schema_version': 1, 'config_fingerprint': fingerprint(config, 'CROUCH_READY'),
             'rear_setback_mm': setback_mm, 'fraction': fraction, 'stage': stage,
             'ground_validated': False, 'requires_full_external_support': True,
             'model_only': True, 'lift_mm': 1000*lift, 'duration_s': elapsed,
+            'endpoint_observation_hold_s': hold_s,
             'frames': frames}
 
 
@@ -174,6 +182,7 @@ def main(argv=None):
     p.add_argument('--rear-setback-mm', type=float, required=True)
     p.add_argument('--stage', choices=['RL', 'RR', 'rise'], default='RL')
     p.add_argument('--fraction', type=float, default=.25)
+    p.add_argument('--hold-s', type=float, default=0., help='0..5 s stationary observation at each outbound endpoint')
     p.add_argument('--export', help='write the offline plan to a new JSON file')
     p.add_argument('--hardware', action='store_true')
     p.add_argument('--confirm-supported', action='store_true',
@@ -183,7 +192,8 @@ def main(argv=None):
     args = p.parse_args(argv)
     try:
         config = load_config(args.config, args.poses)
-        plan = compile_probe(config, args.rear_setback_mm, stage=args.stage, fraction=args.fraction)
+        plan = compile_probe(config, args.rear_setback_mm, stage=args.stage,
+                             fraction=args.fraction, hold_s=args.hold_s)
         run_probe(config, plan)  # deterministic validation with dry output
         print(json.dumps(summary(plan), indent=2), flush=True)
         if args.export:

@@ -81,6 +81,27 @@ class RearSetbackTests(unittest.TestCase):
             self.assertEqual(rear_setback.main(base),2)
             self.assertEqual(rear_setback.main(base+['--confirm-supported','--log','unused-test-log.jsonl']),2)
 
+    def test_observation_hold_is_stationary_and_does_not_enlarge_motion(self):
+        original=rear_setback.compile_probe(self.config,20,stage='RL',fraction=.5)
+        plan=rear_setback.compile_probe(self.config,20,stage='RL',fraction=.5,hold_s=3.)
+        endpoint=[r for r in plan['frames'] if r['phase']=='SETBACK_RL'][-1]
+        held=[r for r in plan['frames'] if r['phase']=='HOLD_SETBACK_RL']
+        self.assertEqual(len(held),150)
+        for frame in held:
+            self.assertEqual(frame['pose'],endpoint['pose'])
+            self.assertEqual(frame['model_feet_body_m'],endpoint['model_feet_body_m'])
+        self.assertAlmostEqual(plan['duration_s']-original['duration_s'],3.)
+        for j in JOINTS:
+            self.assertAlmostEqual(max(r['pose'][j] for r in plan['frames']),
+                                   max(r['pose'][j] for r in original['frames']))
+            self.assertAlmostEqual(min(r['pose'][j] for r in plan['frames']),
+                                   min(r['pose'][j] for r in original['frames']))
+
+    def test_invalid_hold_cannot_enter_the_plan(self):
+        for value in (-1,6,True,float('inf'),float('nan')):
+            with self.assertRaises(SafetyError):
+                rear_setback.compile_probe(self.config,20,hold_s=value)
+
 
 if __name__=='__main__':
     unittest.main()
