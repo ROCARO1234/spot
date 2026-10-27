@@ -8,10 +8,10 @@ from robot_config import JOINTS, SafetyError, finite_number
 
 
 class MotionController:
-    def __init__(self, config, initial_pose="STAND"):
+    def __init__(self, config, initial_pose="STAND", *, dynamicity=1.):
         self.config = config
         self.ik = IKBinding(config)
-        self.planner = CrawlPlanner(config)
+        self.planner = CrawlPlanner(config, dynamicity=dynamicity)
         self.limiter = PoseSlewLimiter(config, config.pose(initial_pose))
         self.last_pose = self.limiter.current.copy()
         self.posture = initial_pose

@@ -148,9 +148,19 @@ class PoseSlewLimiter:
 
 
 class CrawlPlanner:
-    def __init__(self, config):
+    def __init__(self, config, dynamicity=1.):
         self.config = config
-        self.settings = config.gait
+        self.dynamicity = finite_number(dynamicity, "dynamicity", .3, 1.)
+        # Time dilation preserves the calibrated spatial envelope. A lower
+        # dynamicity slows commands and phases together, with acceleration
+        # reduced quadratically. Never mutate the caller's calibration.
+        self.settings = dict(config.gait)
+        for key in ("transfer_time_s", "swing_time_s"):
+            self.settings[key] /= self.dynamicity
+        for key in ("max_translation_mps", "max_yaw_rps"):
+            self.settings[key] *= self.dynamicity
+        for key in ("translation_accel_mps2", "yaw_accel_rps2"):
+            self.settings[key] *= self.dynamicity ** 2
         self.order = tuple(self.settings["order"])
         self.feet = {leg: p.copy() for leg, p in config.nominal.items()}
         self.body_shift = np.zeros(3)
@@ -176,6 +186,7 @@ class CrawlPlanner:
 
     def set_command(self, vx=0., vy=0., wz=0.):
         command = np.array([finite_number(v, "velocity", -10, 10) for v in (vx, vy, wz)])
+        command *= self.dynamicity
         scale = 1.
         planar = np.linalg.norm(command[:2])
         if planar > 0:
@@ -253,29 +264,42 @@ class CrawlPlanner:
                 if not self._moving():
                     break
                 self._choose_next()
-            if self.state == "CENTER" and self._moving():
-                self._choose_next()
             duration = self.settings["swing_time_s"] if self.state == "SWING" else self.settings["transfer_time_s"]
             h = min(remaining, .02, duration - self.t)
             if h <= 1e-10:
                 self._finish_stage()
                 continue
-            delta = self.requested[:2] - self.velocity[:2]
+            # Complete final centering before accepting a new walking command.
+            # Restarting its polynomial midway would reset the body tangent.
+            # Keep the request queued; STAND starts it on the next substep.
+            requested = np.zeros(3) if self.state == "CENTER" else self.requested
+            delta = requested[:2] - self.velocity[:2]
             length = np.linalg.norm(delta)
             limit = self.settings["translation_accel_mps2"] * h
             self.velocity[:2] += delta if length <= limit else delta * limit / length
-            yaw_delta = self.requested[2] - self.velocity[2]
+            yaw_delta = requested[2] - self.velocity[2]
             yaw_limit = self.settings["yaw_accel_rps2"] * h
             self.velocity[2] += min(yaw_limit, max(-yaw_limit, yaw_delta))
             for leg in LEGS:
                 if leg != self.swing:
                     self.feet[leg] = inverse_body_step(self.feet[leg], self.velocity, h)
+            if self.state == "TRANSFER":
+                # Both COM anchors must move with the stance reference frame.
+                # Keeping the start anchor fixed would reset body velocity at
+                # every touchdown. Transport preserves that tangent without
+                # Hermite overshoot outside the two-anchor convex segment.
+                offset = np.array([*self.settings["com_offset_xy_m"], 0.])
+                self.start_shift = inverse_body_step(self.start_shift + offset, self.velocity, h) - offset
             self.t += h
             u = min(1., self.t / duration)
             if self.state == "TRANSFER":
                 target = self._support_center(self.next_leg)
                 self.body_shift = self.start_shift + ease(u) * (target - self.start_shift)
             elif self.state == "SWING":
+                # The body can brake or change direction while the foot is
+                # airborne. Match the CURRENT stance tangent on touchdown;
+                # h3(1)=0 keeps the accepted endpoint unchanged.
+                self.v1 = -foot_velocity(self.p1, self.velocity)
                 self.feet[self.swing] = self._swing_point(u)
                 self.body_shift = self._support_center(self.swing)
             else:

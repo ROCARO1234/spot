@@ -15,6 +15,7 @@ import numpy as np
 
 from robot_config import load_config
 from simulation import simulate, summary
+from runner_gait_ikfin import preflight_demo
 
 ROOT = Path(__file__).resolve().parent
 
@@ -22,6 +23,9 @@ ROOT = Path(__file__).resolve().parent
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default=str(ROOT/"validation_results.json"))
+    parser.add_argument('--config', default=str(ROOT/'config'/'robot.json'))
+    parser.add_argument('--poses')
+    parser.add_argument('--dynamicity', type=float, default=1.)
     args = parser.parse_args(argv)
     began = time.perf_counter()
     suite = unittest.defaultTestLoader.discover(str(ROOT/"tests"))
@@ -34,22 +38,33 @@ def main(argv=None):
     paths = [*ROOT.glob("*.py"), *(ROOT/"tests").glob("*.py"), *(ROOT/"config").glob("*.json")]
     for path in sorted(paths):
         report["source_sha256"][path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
-    config = load_config()
-    cycle = 4*(config.gait["transfer_time_s"]+config.gait["swing_time_s"])
+    config = load_config(args.config, args.poses)
+    from gait_core import CrawlPlanner
+    cycle = CrawlPlanner(config, dynamicity=args.dynamicity).cycle_time
+    report['runtime_config_sha256'] = hashlib.sha256(json.dumps(
+        {'robot': config.data, 'poses': config.poses}, sort_keys=True).encode()).hexdigest()
+    report['dynamicity'] = args.dynamicity
     commands = [(vx, vy, wz) for vx in (-config.gait["max_translation_mps"], 0., config.gait["max_translation_mps"])
                 for vy in (-config.gait["max_translation_mps"], 0., config.gait["max_translation_mps"])
                 for wz in (-config.gait["max_yaw_rps"], 0., config.gait["max_yaw_rps"])]
     for index, command in enumerate(commands, 1):
         entry = {"requested_velocity": list(command)}
         try:
-            records = simulate(config, command, 2*cycle)
+            records = simulate(config, command, 2*cycle, dynamicity=args.dynamicity)
             entry.update(summary(records))
             entry["passed"] = entry["final_state"] == "STAND" and entry["max_swing_legs"] <= 1
         except Exception as exc:
             entry.update({"passed": False, "error": f"{type(exc).__name__}: {exc}"})
         report["profiles"].append(entry)
         print(f"Profile {index}/{len(commands)} {command}: {'OK' if entry['passed'] else 'FAILED'}", flush=True)
-    report["passed"] = result.wasSuccessful() and all(p["passed"] for p in report["profiles"])
+    try:
+        preflight_demo(config, (.003, 0., 0.), cycle, 'CROUCH_READY', args.dynamicity)
+        report['demo_roundtrip_offline_passed'] = True
+    except Exception as exc:
+        report['demo_roundtrip_offline_passed'] = False
+        report['demo_error'] = str(exc)
+    report["passed"] = (result.wasSuccessful() and all(p["passed"] for p in report["profiles"])
+                        and report['demo_roundtrip_offline_passed'])
     report["wall_time_seconds"] = round(time.perf_counter()-began, 3)
     path = Path(args.output).expanduser().resolve()
     path.parent.mkdir(parents=True, exist_ok=True)

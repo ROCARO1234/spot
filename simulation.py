@@ -13,9 +13,9 @@ from robot_config import JOINTS, LEGS, SafetyError, finite_number
 from robot_io import DryRunOutput
 
 
-def simulate(config, command=(.003, 0., 0.), duration=12., initial_pose="STAND"):
+def simulate(config, command=(.003, 0., 0.), duration=12., initial_pose="STAND", *, dynamicity=1.):
     finite_number(duration, "duration", .02, 300.)
-    controller = MotionController(config, initial_pose)
+    controller = MotionController(config, initial_pose, dynamicity=dynamicity)
     controller.set_command(*command)
     output = DryRunOutput(config)
     output.open(controller.last_pose)
