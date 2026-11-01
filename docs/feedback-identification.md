@@ -11,7 +11,9 @@ se presupune că releu ON înseamnă automat „fără mișcare”.
 Pachetul furnizat de utilizator, `Spot_AutoMap_Feedback_v1.zip` și scriptul său
 `auto_map_feedback.py`, **nu sunt încă disponibile**. Fișierele de aici sunt
 suport de diagnostic/analiză pregătit separat; nu reprezintă o inspecție sau
-o copie a acelui script. Nicio funcție de mișcare nu este implementată aici.
+o copie a acelui script. Cititorul `feedback_readout.py` nu comandă motoare.
+Executorul separat `feedback_identify.py` are mod hardware explicit și blocaje
+electrice; implicit verifică doar offline. Nu ocolește formatul ADC incompatibil.
 
 ## Configurație explicită
 
@@ -60,7 +62,7 @@ nu exclude un program străin care îl ignoră.
 
 ```sh
 py="$HOME/Desktop/Spot_SM5_RoboFest_v1/spot/.venv/bin/python"
-cd "$HOME/Desktop/Spot_Feedback_Diagnostics_20261101_r3"
+cd "$HOME/Desktop/Spot_Feedback_Identification_20261101_v2"
 "$py" feedback_readout.py                 # doar verificare offline, fără I²C
 "$py" feedback_readout.py --read --i2c-idle-confirmed --samples 50 \
   --output-dir "$HOME/feedback_results/baseline-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -133,3 +135,34 @@ indicator de asociere; nu dovedește unghiul fizic și nu este calibrare absolut
 Rezultatul rămâne propunere pentru verificare fizică. Nu scrie în `robot.json`
 sau `poses.json` și nu activează control pe feedback. Testele sintetice sunt
 etichetate ca atare și nu sunt raportate drept măsurători ale robotului.
+
+## Executorul separat de identificare
+
+Nu este scriptul original indisponibil. `feedback_identify.py` cere explicit
+`--hardware --confirm-supported --i2c-idle-confirmed`, toate măsurătorile
+electrice din configurație și compatibilitatea strictă a registrelor ADC înainte
+de orice tentativă de alimentare. Nu are mod brut pentru a ocoli această verificare.
+În starea actuală rămâne blocat; permisiunea pentru releu și pregătirea fizică
+nu înlocuiesc valorile electrice și nici corectitudinea formatului ADC.
+
+Implicit execută doar verificarea offline:
+
+```sh
+"$py" feedback_identify.py \
+  --robot-config "$HOME/Desktop/sm5_gait_fixed/config/robot.json" \
+  --poses "$HOME/Desktop/sm5_gait_fixed/config/poses.json" \
+  --output-dir "$HOME/feedback_results/identify-check-$(date -u +%Y%m%dT%H%M%SZ)"
+```
+
+După rezolvarea condițiilor și o pregătire fizică confirmată, modul hardware
+poate comanda STAND tuturor celor 12 servouri la pornire. Abia după alimentare
+colectează baza de feedback/zgomot utilizată de analizor; scanarea precedentă
+servește exclusiv verificării protocolului. Fiecare probă mișcă un singur servo,
+implicit ±1° la 1°/s, trei repetări, revenire între probe. Amplitudinea nu se
+mărește automat și nu poate depăși ±3°.
+
+La eroare sau semnal de oprire încearcă mai întâi releu OFF, apoi curățarea ADC,
+analiza și salvarea. Nu face revenire programată după urgență. Rezultatele sunt
+scrise într-un director nou. Erorile de oprire sunt raportate. Codul 0 înseamnă
+propunere completă fără erori; 3 înseamnă măsurare încheiată, dar asocieri
+respinse/parțiale; 2 înseamnă blocaj sau eroare. Nu modifică fișierele calibrate.
