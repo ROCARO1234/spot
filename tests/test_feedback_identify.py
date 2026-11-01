@@ -30,6 +30,7 @@ class IdentificationExecutorTests(unittest.TestCase):
         self.robot=RobotConfig(data,copy.deepcopy(old.poses))
         self.clock=Clock(); self.events=[]; self.output=None; self.scans=0
         self.reader_error=None; self.interrupt_motion=False; self.overvoltage=False; self.fail_off=False
+        self.conversion_s=.075
 
     def output_factory(self,config):
         owner=self
@@ -53,8 +54,8 @@ class IdentificationExecutorTests(unittest.TestCase):
         class Reader:
             cleanup_errors=[]
             def open(self): owner.events.append('adc_open')
-            def scan(self):
-                owner.scans+=1; owner.clock.sleep(.03)
+            def scan(self,*,after_input=None):
+                owner.scans+=1
                 if owner.reader_error: raise owner.reader_error
                 powered=owner.output is not None and owner.output.armed
                 rows={}
@@ -68,6 +69,8 @@ class IdentificationExecutorTests(unittest.TestCase):
                         if owner.overvoltage and powered: volts=3.5
                         rows[f'{mux}:{ain}']={'volts':volts,'lsb_v':.003 if mux<3 else .0001875,
                                               'saturated':False}
+                        owner.clock.sleep(owner.conversion_s)
+                        if after_input is not None: after_input()
                 return rows
             def close(self): owner.events.append('adc_close')
         return Reader()
@@ -98,6 +101,13 @@ class IdentificationExecutorTests(unittest.TestCase):
         self.layout['electrical']['adc_supply_v_measured']=None
         result=self.run_trial()
         self.assertFalse(result['power_on_attempted']); self.assertEqual(self.events,[])
+
+    def test_stalled_conversion_cuts_power_and_does_not_waive_loop_limit(self):
+        self.conversion_s=.3
+        result=self.run_trial()
+        self.assertIn('control-loop gap',result['error'])
+        self.assertEqual(self.events[-2:],['power_off','adc_close'])
+        self.assertFalse(result['completed_without_error'])
 
     def test_missing_readiness_and_excessive_amplitude_cannot_touch_hardware(self):
         result=identify(self.layout,self.robot,confirmed_supported=False,

@@ -80,8 +80,13 @@ def identify(layout,robot,*,confirmed_supported=False,amplitude_deg=1.,rate_deg_
 
         def window():
             values={key:[] for key in ADC_KEYS}; scans=[]
+            def heartbeat():
+                if clock()-previous_write>=period: write(current)
             for _ in range(samples_per_window):
-                scan=reader.scan()
+                # A complete 16-input scan can exceed the control-loop deadline.
+                # Hold the reference between conversions, retaining the real
+                # deadline check for any individual stalled transaction.
+                scan=reader.scan(after_input=heartbeat)
                 if set(scan)!=set(ADC_KEYS): raise SafetyError('Settled scan missing ADC inputs')
                 for key,value in scan.items():
                     volts=finite(value['volts'],'powered ADC volts')
@@ -91,7 +96,7 @@ def identify(layout,robot,*,confirmed_supported=False,amplitude_deg=1.,rate_deg_
                         raise SafetyError('Powered ADC out of expected electrical range or saturated: '+key)
                     values[key].append(volts)
                 scans.append(scan)
-                write(current)  # holding still does not waive the real loop-gap limit
+                heartbeat()
             return values,scans
 
         hold(.25)

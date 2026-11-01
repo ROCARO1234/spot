@@ -183,12 +183,13 @@ class MuxADSReader:
         return value | {'mux_channel':self.selected,'input':input_channel,'model':model,
                         'timestamp_monotonic_s':self.clock(),'provenance':'ADC conversion; not servo angle'}
 
-    def scan(self,*,raw_only=False):
+    def scan(self,*,raw_only=False,after_input=None):
         result={}
         for channel in sorted(self.devices):
             with self.select(channel):
                 for input_channel in range(4):
                     result[f'{channel}:{input_channel}']=self.read_input(input_channel,raw_only=raw_only)
+                    if after_input is not None: after_input()
         return result
 
     def close(self):
