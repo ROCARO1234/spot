@@ -1,5 +1,13 @@
 # Identificarea feedbackului servo — diagnostic separat
 
+**Dependență confirmată de utilizator:** semnalul de poziție necesită alimentarea
+servourilor. Citirea fără activarea lor servește doar diagnosticului ADC/topologiei
+și bazei de zgomot; nu furnizează poziții utilizabile sau asocieri de articulații.
+Pentru o bază de feedback alimentat este necesară ulterior o etapă separată,
+după verificarea fizică a tensiunilor și confirmarea operatorului. Alimentarea
+singură poate pune în mișcare servourile dacă PWM-ul existent este activ; nu
+se presupune că releu ON înseamnă automat „fără mișcare”.
+
 Pachetul furnizat de utilizator, `Spot_AutoMap_Feedback_v1.zip` și scriptul său
 `auto_map_feedback.py`, **nu sunt încă disponibile**. Fișierele de aici sunt
 suport de diagnostic/analiză pregătit separat; nu reprezintă o inspecție sau
