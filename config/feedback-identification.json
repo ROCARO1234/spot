@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "bus": 1,
+  "mux_address": 113,
+  "mux_protocol": "one-hot-control-byte",
+  "adc_address": 72,
+  "full_scale_v": 6.144,
+  "sample_rate_sps": 128,
+  "devices": [
+    {"mux_channel": 0, "model": "ADS1015", "leg": null},
+    {"mux_channel": 1, "model": "ADS1015", "leg": null},
+    {"mux_channel": 2, "model": "ADS1015", "leg": null},
+    {"mux_channel": 3, "model": "ADS1115", "leg": "RR"}
+  ],
+  "electrical": {
+    "adc_supply_v_measured": null,
+    "feedback_min_v_measured": null,
+    "feedback_max_v_measured": null,
+    "adaptation_circuit_verified": false,
+    "motion_electrically_verified": false,
+    "measurement_evidence": null
+  },
+  "pca9685_channels": {
+    "FL_sh": 15, "FL_up": 14, "FL_lo": 13,
+    "FR_sh": 3, "FR_up": 2, "FR_lo": 1,
+    "RL_sh": 11, "RL_up": 10, "RL_lo": 9,
+    "RR_sh": 7, "RR_up": 6, "RR_lo": 5
+  }
+}
