@@ -8,7 +8,8 @@ import zipfile
 
 root=Path(__file__).resolve().parent
 names=['feedback_hw.py','feedback_readout.py','feedback_mapping.py','feedback_preflight.py',
-       'robot_config.py','config/feedback-identification.json','docs/feedback-identification.md',
+       'robot_config.py','config/robot.json','config/poses.json',
+       'config/feedback-identification.json','docs/feedback-identification.md',
        'tests/test_feedback_hw.py','tests/test_feedback_mapping.py','tests/test_feedback_preflight.py']
 files={n:subprocess.check_output(['git','show',':'+n],cwd=root) for n in names}
 files['BUILD.json']=json.dumps({'kind':'separate_feedback_diagnostics_not_supplied_automap_script',

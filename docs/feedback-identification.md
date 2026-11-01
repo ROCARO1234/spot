@@ -52,7 +52,7 @@ nu exclude un program străin care îl ignoră.
 
 ```sh
 py="$HOME/Desktop/Spot_SM5_RoboFest_v1/spot/.venv/bin/python"
-cd "$HOME/Desktop/Spot_Feedback_Diagnostics_20261101"
+cd "$HOME/Desktop/Spot_Feedback_Diagnostics_20261101_r2"
 "$py" feedback_readout.py                 # doar verificare offline, fără I²C
 "$py" feedback_readout.py --read --i2c-idle-confirmed --samples 50 \
   --output-dir "$HOME/feedback_results/baseline-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -70,6 +70,11 @@ sau identificarea unei articulații. Semnalele SIGTERM/SIGHUP cer curățare.
 și intrări neidentificate. Pentru RR, mux 3 este doar constrângerea furnizată de
 utilizator, nu o asociere identificată prin mișcare. Datele obținute cu alimentarea
 servourilor oprită nu demonstrează că feedbackul funcționează când este alimentat.
+
+`config/robot.json` și `config/poses.json` din pachet sunt fixture-uri/configurații
+de referință pentru teste, cu verificările hardware neconfirmate. Nu înlocuiesc
+fișierele calibrate din `sm5_gait_fixed/config`; comanda de preflight de mai jos
+citește explicit configurațiile calibrate externe.
 
 ## Preflight offline pentru identificare ulterioară
 
