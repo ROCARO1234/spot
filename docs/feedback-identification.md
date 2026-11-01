@@ -62,7 +62,7 @@ nu exclude un program străin care îl ignoră.
 
 ```sh
 py="$HOME/Desktop/Spot_SM5_RoboFest_v1/spot/.venv/bin/python"
-cd "$HOME/Desktop/Spot_Feedback_Identification_20261101_v2"
+cd "$HOME/Desktop/Spot_Feedback_Identification_20261101_v4"
 "$py" feedback_readout.py                 # doar verificare offline, fără I²C
 "$py" feedback_readout.py --read --i2c-idle-confirmed --samples 50 \
   --output-dir "$HOME/feedback_results/baseline-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -166,3 +166,4 @@ analiza și salvarea. Nu face revenire programată după urgență. Rezultatele 
 scrise într-un director nou. Erorile de oprire sunt raportate. Codul 0 înseamnă
 propunere completă fără erori; 3 înseamnă măsurare încheiată, dar asocieri
 respinse/parțiale; 2 înseamnă blocaj sau eroare. Nu modifică fișierele calibrate.
+
