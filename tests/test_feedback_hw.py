@@ -41,7 +41,7 @@ class Bus:
             if self.corrupt: value ^= 0x1000
         else:
             if self.fail_conversion: raise OSError('injected conversion failure')
-            value=0x1000
+            value=getattr(self,'raw_value',0x1000)
         return [value>>8,value&255]
     def close(self): self.calls.append(('close',)); self.closed=True
 
@@ -159,6 +159,16 @@ class FeedbackHardwareTests(unittest.TestCase):
         result=acquisition(config(),5,reader_factory=lambda _:r)
         self.assertFalse(result['passed'])
         self.assertTrue(result['cleanup_errors']); self.assertTrue(b.closed)
+
+    def test_raw_mode_preserves_incompatible_bits_without_inventing_volts_or_type(self):
+        r,b=self.reader(); b.raw_value=0x1001
+        report=acquisition(config(),5,reader_factory=lambda _:r,raw_only=True)
+        self.assertTrue(report['passed']); self.assertTrue(b.closed)
+        self.assertEqual(report['scans'][0]['readings']['0:0']['register_u16'],0x1001)
+        self.assertIsNone(report['scans'][0]['readings']['0:0']['volts'])
+        self.assertFalse(report['scans'][0]['readings']['0:0']['model_verified'])
+        self.assertEqual(report['statistics']['0:0']['format_mismatch_samples'],5)
+        self.assertIsNone(report['statistics']['0:0']['volts'])
 
 
 if __name__=='__main__': unittest.main()

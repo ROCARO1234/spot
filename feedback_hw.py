@@ -41,7 +41,7 @@ def decode_conversion(model,data,full_scale_v=6.144):
     bits=MODELS[model][0]
     if bits==12:
         if raw&15:
-            raise AcquisitionError('ADS1015 reserved low bits are nonzero; model/configuration may be wrong')
+            raise AcquisitionError(f'ADS1015 reserved low bits are nonzero (register 0x{raw:04x}); model/configuration may be wrong')
         signed >>= 4
     return {'register_u16':raw,'code':signed,'volts':signed*full_scale_v/(1<<(bits-1)),
             'lsb_v':full_scale_v/(1<<(bits-1)),
@@ -159,7 +159,7 @@ class MuxADSReader:
             if self.clock()>=deadline: raise AcquisitionError('ADC conversion timed out')
             self.sleep(.001)
 
-    def read_input(self,input_channel):
+    def read_input(self,input_channel,*,raw_only=False):
         if self.selected not in self.devices: raise AcquisitionError('No configured ADC selected')
         model=self.devices[self.selected]
         wanted=single_shot_config(model,input_channel,self.config['full_scale_v'])
@@ -170,16 +170,25 @@ class MuxADSReader:
         self._write_word(1,wanted)
         self._wait_ready(wanted)
         raw=self._read_word(0)
-        value=decode_conversion(model,[raw>>8,raw&255],self.config['full_scale_v'])
+        if raw_only:
+            value={'register_u16':raw,'register_signed16':raw-65536 if raw&0x8000 else raw,
+                   'code':None,'volts':None,'lsb_v':None,'saturated':None,
+                   'format_not_contradicted':model=='ADS1115' or raw&15==0,
+                   'model_verified':False}
+        else:
+            try:
+                value=decode_conversion(model,[raw>>8,raw&255],self.config['full_scale_v'])
+            except AcquisitionError as exc:
+                raise AcquisitionError(f'mux{self.selected}/AIN{input_channel}: {exc}') from exc
         return value | {'mux_channel':self.selected,'input':input_channel,'model':model,
                         'timestamp_monotonic_s':self.clock(),'provenance':'ADC conversion; not servo angle'}
 
-    def scan(self):
+    def scan(self,*,raw_only=False):
         result={}
         for channel in sorted(self.devices):
             with self.select(channel):
                 for input_channel in range(4):
-                    result[f'{channel}:{input_channel}']=self.read_input(input_channel)
+                    result[f'{channel}:{input_channel}']=self.read_input(input_channel,raw_only=raw_only)
         return result
 
     def close(self):

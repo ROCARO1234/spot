@@ -52,7 +52,7 @@ nu exclude un program străin care îl ignoră.
 
 ```sh
 py="$HOME/Desktop/Spot_SM5_RoboFest_v1/spot/.venv/bin/python"
-cd "$HOME/Desktop/Spot_Feedback_Diagnostics_20261101_r2"
+cd "$HOME/Desktop/Spot_Feedback_Diagnostics_20261101_r3"
 "$py" feedback_readout.py                 # doar verificare offline, fără I²C
 "$py" feedback_readout.py --read --i2c-idle-confirmed --samples 50 \
   --output-dir "$HOME/feedback_results/baseline-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -75,6 +75,21 @@ servourilor oprită nu demonstrează că feedbackul funcționează când este al
 de referință pentru teste, cu verificările hardware neconfirmate. Nu înlocuiesc
 fișierele calibrate din `sm5_gait_fixed/config`; comanda de preflight de mai jos
 citește explicit configurațiile calibrate externe.
+
+### Diagnostic de registre brute
+
+Dacă datele contrazic formatul ADS1015 declarat, modul strict oprește achiziția.
+Nu modifică automat tipul ADC. Pentru investigație, `--raw-only` citește explicit
+registrele și zgomotul în unități signed16, fără a inventa coduri ADC normalizate,
+tensiuni sau rezoluția reală. Modelul rămâne configurat, dar neverificat de date.
+
+```sh
+"$py" feedback_readout.py --read --raw-only --i2c-idle-confirmed --samples 20 \
+  --output-dir "$HOME/feedback_results/raw-$(date -u +%Y%m%dT%H%M%SZ)"
+```
+
+Acest mod nu este o conversie automată ADS1015→ADS1115 și nu poate fi utilizat
+pentru autorizarea mișcării. Se păstrează separat încercarea strictă nereușită.
 
 ## Preflight offline pentru identificare ulterioară
 

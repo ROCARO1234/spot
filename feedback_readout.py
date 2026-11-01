@@ -12,11 +12,12 @@ import uuid
 from feedback_hw import MuxADSReader,validate_layout
 
 
-def acquisition(config,samples=50,*,reader_factory=MuxADSReader):
+def acquisition(config,samples=50,*,reader_factory=MuxADSReader,raw_only=False):
     if type(samples) is not int or not 5<=samples<=1000:
         raise ValueError('samples must be an integer in 5..1000')
     reader=reader_factory(config)
-    report={'schema_version':1,'mode':'ADC_ONLY_BASELINE','motion_performed':False,
+    report={'schema_version':1,'mode':'ADC_RAW_REGISTER_BASELINE' if raw_only else 'ADC_ONLY_BASELINE',
+            'raw_only':raw_only,'motion_performed':False,
             'motor_hardware_touched':False,'electrical_safety_confirmed':False,
             'config_sha256':hashlib.sha256(json.dumps(config,sort_keys=True).encode()).hexdigest(),
             'started_at_utc':datetime.now(timezone.utc).isoformat(),'layout':config['devices'],
@@ -24,7 +25,7 @@ def acquisition(config,samples=50,*,reader_factory=MuxADSReader):
     try:
         reader.open()
         for index in range(samples):
-            report['scans'].append({'index':index,'readings':reader.scan()})
+            report['scans'].append({'index':index,'readings':reader.scan(raw_only=raw_only)})
     except BaseException as exc:
         report['error']=type(exc).__name__+': '+str(exc)
     finally:
@@ -33,6 +34,16 @@ def acquisition(config,samples=50,*,reader_factory=MuxADSReader):
     if report['scans']:
         for key in report['scans'][0]['readings']:
             rows=[r['readings'][key] for r in report['scans']]
+            if raw_only:
+                values=[r['register_signed16'] for r in rows]
+                report['statistics'][key]={'n':len(values),'units':'signed16 register units; not ADC counts or volts',
+                    'mean_register':statistics.mean(values),
+                    'stdev_register':statistics.stdev(values) if len(values)>1 else None,
+                    'min_register':min(values),'max_register':max(values),
+                    'peak_to_peak_register':max(values)-min(values),
+                    'format_mismatch_samples':sum(not r['format_not_contradicted'] for r in rows),
+                    'model_verified':False,'volts':None}
+                continue
             values=[r['volts'] for r in rows]
             median=statistics.median(values)
             report['statistics'][key]={'n':len(values),'mean_v':statistics.mean(values),
@@ -64,6 +75,7 @@ def main(argv=None):
     p.add_argument('--read',action='store_true',help='explicit real ADC acquisition; never motor output')
     p.add_argument('--i2c-idle-confirmed',action='store_true')
     p.add_argument('--samples',type=int,default=50)
+    p.add_argument('--raw-only',action='store_true',help='explicit diagnostic: preserve registers, no voltage/type inference')
     p.add_argument('--output-dir',help='must be a new, non-existing directory')
     args=p.parse_args(argv)
     config=validate_layout(json.loads(Path(args.config).expanduser().read_text(encoding='utf-8-sig')))
@@ -82,7 +94,7 @@ def main(argv=None):
         for name in ('SIGTERM','SIGHUP'):
             sig=getattr(signal,name,None)
             if sig is not None: handlers[sig]=signal.signal(sig,interrupt)
-        report=acquisition(config,args.samples)
+        report=acquisition(config,args.samples,raw_only=args.raw_only)
     finally:
         for sig,handler in handlers.items(): signal.signal(sig,handler)
     # No output hardware is open while results are saved.
